@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.simpleflashcards.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_reviewCards"
+            app:destination="@id/reviewCards" />
+        <action
+            android:id="@+id/action_homeFragment_to_addCards"
+            app:destination="@id/addCards" />
+        <action
+            android:id="@+id/action_homeFragment_to_editCards"
+            app:destination="@id/editCards" />
+    </fragment>
+    <fragment
+        android:id="@+id/reviewCards"
+        android:name="com.example.simpleflashcards.ReviewCards"
+        android:label="fragment_review_cards"
+        tools:layout="@layout/fragment_review_cards" >
+        <action
+            android:id="@+id/action_reviewCards_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addCards"
+        android:name="com.example.simpleflashcards.AddCards"
+        android:label="fragment_add_cards"
+        tools:layout="@layout/fragment_add_cards" />
+    <fragment
+        android:id="@+id/editCards"
+        android:name="com.example.simpleflashcards.EditCards"
+        android:label="fragment_edit_cards"
+        tools:layout="@layout/fragment_edit_cards" />
+</navigation>
