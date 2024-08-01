@@ -128,11 +128,11 @@ class AddCards : Fragment() {
     }
 
     private fun cardItemClicked(card:Card) {
+        selectedCard = card
+        isCardItemClicked = true
         binding.apply {
-            selectedCard = card
             btnAddCard.text = "Update"
             btnClearFields.text = "Delete"
-            isCardItemClicked = true
             etFront.setText(selectedCard.front)
             etBack.setText(selectedCard.back)
         }

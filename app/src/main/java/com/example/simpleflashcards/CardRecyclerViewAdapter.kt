@@ -41,6 +41,9 @@ class CardViewHolder(
             binding.apply {
                 tvDataFrnt.text = card.front
                 tvDataBck.text = card.back
+                root.setOnClickListener{
+                    clickListener(card)
+                }
             }
         }
 }
