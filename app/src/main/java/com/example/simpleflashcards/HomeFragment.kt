@@ -22,13 +22,15 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        binding.btnStudy.setOnClickListener{
-           val bundle = bundleOf()
-           it.findNavController().navigate(R.id.action_homeFragment_to_reviewCards, bundle)
-        }
-        binding.btnAdd.setOnClickListener{
-            val bundle = bundleOf()
-            it.findNavController().navigate(R.id.action_homeFragment_to_addCards, bundle)
+        binding.apply {
+            btnStudy.setOnClickListener{
+                val bundle = bundleOf()
+                it.findNavController().navigate(R.id.action_homeFragment_to_reviewCards, bundle)
+            }
+            btnAdd.setOnClickListener{
+                val bundle = bundleOf()
+                it.findNavController().navigate(R.id.action_homeFragment_to_addCards, bundle)
+            }
         }
         return binding.root
     }

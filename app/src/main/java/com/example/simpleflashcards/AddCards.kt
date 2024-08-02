@@ -1,15 +1,20 @@
 package com.example.simpleflashcards
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.simpleflashcards.databinding.FragmentAddCardsBinding
 import com.example.simpleflashcards.db.Card
 import com.example.simpleflashcards.db.CardDatabase
+import java.time.LocalDate
 
 class AddCards : Fragment() {
 
@@ -24,6 +29,7 @@ class AddCards : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,8 +45,10 @@ class AddCards : Fragment() {
             btnAddCard.setOnClickListener{
                 if(isCardItemClicked) {
                     updateCardData()
+                    clearInput()
                 } else {
                     saveCardData()
+                    clearInput()
                 }
             }
             btnClearFields.setOnClickListener{
@@ -49,6 +57,10 @@ class AddCards : Fragment() {
                 }
                 clearInput()
             }
+            btnReturnToHome.setOnClickListener{
+                val bundle = bundleOf()
+                it.findNavController().navigate(R.id.action_addCards_to_homeFragment, bundle)
+            }
         }
 
         initRecyclerView()
@@ -56,6 +68,7 @@ class AddCards : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun saveCardData(){
         viewModel.insertCard(
             Card(0,
@@ -63,7 +76,11 @@ class AddCards : Fragment() {
                 true,
                 false,
                 binding.etFront.text.toString(),
-                binding.etBack.text.toString())
+                binding.etBack.text.toString(),
+                1,
+                1,
+                LocalDate.now().toString()
+                )
         )
     }
 
@@ -75,7 +92,10 @@ class AddCards : Fragment() {
                 selectedCard.isNew,
                 selectedCard.isForgotten,
                 binding.etFront.text.toString(),
-                binding.etBack.text.toString()
+                binding.etBack.text.toString(),
+                selectedCard.baseInterval,
+                selectedCard.remainingDays,
+                selectedCard.timestamp
             )
         )
         binding.apply{
@@ -93,7 +113,10 @@ class AddCards : Fragment() {
                 selectedCard.isNew,
                 selectedCard.isForgotten,
                 selectedCard.front,
-                selectedCard.back
+                selectedCard.back,
+                selectedCard.baseInterval,
+                selectedCard.remainingDays,
+                selectedCard.timestamp
             )
         )
         binding.apply {

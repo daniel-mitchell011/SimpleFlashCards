@@ -33,7 +33,11 @@
         android:id="@+id/addCards"
         android:name="com.example.simpleflashcards.AddCards"
         android:label="fragment_add_cards"
-        tools:layout="@layout/fragment_add_cards" />
+        tools:layout="@layout/fragment_add_cards" >
+        <action
+            android:id="@+id/action_addCards_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/editCards"
         android:name="com.example.simpleflashcards.EditCards"
