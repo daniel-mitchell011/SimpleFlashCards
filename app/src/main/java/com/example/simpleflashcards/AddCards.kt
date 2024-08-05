@@ -78,7 +78,7 @@ class AddCards : Fragment() {
                 binding.etFront.text.toString(),
                 binding.etBack.text.toString(),
                 1,
-                1,
+                0,
                 LocalDate.now().toString()
                 )
         )

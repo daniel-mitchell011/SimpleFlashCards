@@ -27,7 +27,7 @@ data class Card(
     @ColumnInfo(name = "timestamp")
     val timestamp: String
 ) {
-    constructor() : this(0, false, true, false, "", "", 1, 1, LocalDate.now().toString()){
+    constructor() : this(0, false, true, false, "empty", "empty", 1, 1, LocalDate.now().toString()){
 
     }
 }
