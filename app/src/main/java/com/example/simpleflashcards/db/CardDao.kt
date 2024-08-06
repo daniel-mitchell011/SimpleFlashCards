@@ -22,4 +22,13 @@ interface CardDao {
     @Query("SELECT * FROM card_data_table")
     fun getAllCards(): LiveData<List<Card>>
 
+    @Query("SELECT * FROM card_data_table WHERE isForgotten = 0 AND isNew = 0")
+    fun getCardsForReview(): LiveData<List<Card>>
+
+    @Query("SELECT * FROM card_data_table WHERE isForgotten = 1")
+    fun getAllForgottenCards(): LiveData<List<Card>>
+
+    @Query("SELECT * FROM card_data_table WHERE isNew = 1")
+    fun getAllNew(): LiveData<List<Card>>
+
 }

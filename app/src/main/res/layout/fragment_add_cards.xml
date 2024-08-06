@@ -69,7 +69,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_weight="1"
-        android:elevation="10dp" >
+        android:elevation="10dp"
+        android:visibility="visible">
 
     </androidx.recyclerview.widget.RecyclerView>
 

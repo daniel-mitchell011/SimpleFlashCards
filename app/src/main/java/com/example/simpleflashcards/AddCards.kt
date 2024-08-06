@@ -1,5 +1,6 @@
 package com.example.simpleflashcards
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -78,7 +79,6 @@ class AddCards : Fragment() {
                 binding.etFront.text.toString(),
                 binding.etBack.text.toString(),
                 1,
-                0,
                 LocalDate.now().toString()
                 )
         )
@@ -94,8 +94,7 @@ class AddCards : Fragment() {
                 binding.etFront.text.toString(),
                 binding.etBack.text.toString(),
                 selectedCard.baseInterval,
-                selectedCard.remainingDays,
-                selectedCard.timestamp
+                selectedCard.dateOfLastReview
             )
         )
         binding.apply{
@@ -115,8 +114,7 @@ class AddCards : Fragment() {
                 selectedCard.front,
                 selectedCard.back,
                 selectedCard.baseInterval,
-                selectedCard.remainingDays,
-                selectedCard.timestamp
+                selectedCard.dateOfLastReview
             )
         )
         binding.apply {
@@ -136,17 +134,18 @@ class AddCards : Fragment() {
         displayCards()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun displayCards() {
-        viewModel.cards.observe(viewLifecycleOwner, {
+        viewModel.cards.observe(viewLifecycleOwner) {
             adapter.setList(it)
             adapter.notifyDataSetChanged()
-        })
+        }
     }
 
     private fun clearInput() {
         binding.apply {
-            etFront.setText("")
-            etBack.setText("")
+            etFront.setText(getString(R.string.empty_string))
+            etBack.setText(getString(R.string.empty_string))
         }
     }
 
