@@ -9,19 +9,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.simpleflashcards.databinding.FragmentReviewCardsBinding
 import com.example.simpleflashcards.db.Card
 import com.example.simpleflashcards.db.CardDatabase
 import java.time.LocalDate
-import java.util.PriorityQueue
-import java.util.LinkedList
+import java.util.Queue
 
 class ReviewCards : Fragment() {
 
-    private val DEAD_CARD: Card = Card()
+    val DEAD_CARD: Card = Card()
     private lateinit var binding: FragmentReviewCardsBinding
 
     private lateinit var viewModel: CardViewModel
@@ -55,19 +53,12 @@ class ReviewCards : Fragment() {
 
         binding.btnOk.setOnClickListener {
             updateCardDatabase(forgotten = false)
-            applyToCountText({ viewModel.decrementReviewCount()    },
-                             { viewModel.decrementNewCount()       },
-                             { viewModel.decrementForgottenCount() })
             setNewCardState(binding)
             loadNextCard()
         }
         binding.btnForgot.setOnClickListener {
             updateCardDatabase(forgotten = true)
             viewModel.forgottenQueue.value?.add(viewModel.currentCard)
-            applyToCountText({ viewModel.decrementReviewCount()    },
-                             { viewModel.decrementNewCount()       },
-                             { viewModel.decrementForgottenCount() })
-            viewModel.incrementForgottenCount()
             setNewCardState(binding)
             loadNextCard()
         }
@@ -89,17 +80,39 @@ class ReviewCards : Fragment() {
                                     viewModel.currentCard.front,
                                     viewModel.currentCard.back,
                                     srsCalculation (viewModel.currentCard.baseInterval, false),
-                                    viewModel.currentCard.dateOfLastReview))
+                                    LocalDate.now().toString()))
+            // Update the temporary variable for the current card so that the state is not
+            // inconsistent with the database
+           viewModel.currentCard = Card(
+               viewModel.currentCard?.id ?: -1,
+               false,
+               false,
+               true,
+               viewModel.currentCard.front,
+               viewModel.currentCard.back,
+               srsCalculation (viewModel.currentCard.baseInterval, false),
+               LocalDate.now().toString())
         } else {
             viewModel.updateCard(card = Card(
                                       viewModel.currentCard.id,
-                                      true,
+                                      false,
                                       false,
                                       false,
                                       viewModel.currentCard.front,
                                       viewModel.currentCard.back,
                                       srsCalculation(viewModel.currentCard.baseInterval, true),
-                                      viewModel.currentCard.dateOfLastReview))
+                                      LocalDate.now().toString()))
+            // Update the temporary variable for the current card so that the state is not
+            // inconsistent with the database
+            viewModel.currentCard = Card(
+                viewModel.currentCard.id,
+                false,
+                false,
+                false,
+                viewModel.currentCard.front,
+                viewModel.currentCard.back,
+                srsCalculation(viewModel.currentCard.baseInterval, true),
+                LocalDate.now().toString())
         }
     }
 
@@ -126,32 +139,29 @@ class ReviewCards : Fragment() {
 
 
     private fun initializeUI() {
-        viewModel.countReview.observe(viewLifecycleOwner) {value ->
-            binding.tvReview.text = "${value}"
-        }
-        viewModel.countNew.observe(viewLifecycleOwner) {value ->
-            binding.tvNewCard.text = "${value}"
-        }
-        viewModel.countForgotten.observe(viewLifecycleOwner) {value ->
-            binding.tvForgot.text = "${value}"
-        }
-
-        for (card in viewModel.reviewQueue.value!!.iterator()) {
-            if(card.isReview) { viewModel.incrementReviewCount() }
-            if(card.isForgotten) { viewModel.incrementForgottenCount() }
-            if(card.isNew){ viewModel.incrementNewCount() }
+        viewModel.newQueue.observe(viewLifecycleOwner) { cards ->
+            if (viewModel.currentCard.isNew) {
+                binding.tvNewCard.text = "${cards.size + 1}"
+            }
+            else {
+                binding.tvNewCard.text = "${cards.size}"
+            }
         }
 
-        for (card in viewModel.forgottenQueue.value!!.iterator()) {
-            if(card.isReview) { viewModel.incrementReviewCount() }
-            if(card.isForgotten) { viewModel.incrementForgottenCount() }
-            if(card.isNew){ viewModel.incrementNewCount() }
+        viewModel.forgottenQueue.observe(viewLifecycleOwner) { cards ->
+            if (viewModel.currentCard.isForgotten) {
+                binding.tvForgot.text = "${cards.size + 1}"
+            } else {
+                binding.tvForgot.text = "${cards.size}"
+            }
         }
 
-        for (card in viewModel.newQueue.value!!.iterator()) {
-            if(card.isReview) { viewModel.incrementReviewCount() }
-            if(card.isForgotten) { viewModel.incrementForgottenCount() }
-            if(card.isNew){ viewModel.incrementNewCount() }
+        viewModel.reviewQueue.observe(viewLifecycleOwner) { cards ->
+            if(viewModel.currentCard.isReview) {
+                binding.tvReview.text = "${cards.size + 1}"
+            } else {
+                binding.tvReview.text = "${cards.size}"
+            }
         }
 
         binding.apply {
@@ -166,18 +176,32 @@ class ReviewCards : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun loadNextCard() {
-        if (noCardsLeft() or (DEAD_CARD == viewModel.currentCard)) {
+        if (noCardsLeft()) {
             setFinishedStateUI()
         } else { // There are cards left, so grab the next one and give it to the user.
             viewModel.currentCard = chooseCard() ?: DEAD_CARD
+            viewModel.notifyQueues()
             binding.apply {
                 tvFront.text = viewModel.currentCard?.front
                 tvBack.text = viewModel.currentCard?.back
             }
             // Update underline on text counters for remaining cards.
-            applyToCountText({ binding.tvReview.paintFlags = binding.tvReview.paintFlags or Paint.UNDERLINE_TEXT_FLAG   },
-                             { binding.tvNewCard.paintFlags = binding.tvNewCard.paintFlags or Paint.UNDERLINE_TEXT_FLAG },
-                             { binding.tvForgot.paintFlags = binding.tvForgot.paintFlags or Paint.UNDERLINE_TEXT_FLAG   })
+            val card = viewModel.currentCard
+            if(card!!.isReview){
+                binding.tvReview.paintFlags = binding.tvReview.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            } else {
+                binding.tvReview.paintFlags = binding.tvReview.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+            }
+            if(card!!.isNew){
+                binding.tvNewCard.paintFlags = binding.tvNewCard.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            } else {
+                binding.tvNewCard.paintFlags = binding.tvNewCard.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+            }
+            if(card!!.isForgotten){
+                binding.tvForgot.paintFlags = binding.tvForgot.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            } else {
+                binding.tvForgot.paintFlags = binding.tvForgot.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+            }
         }
     }
 
@@ -193,22 +217,27 @@ class ReviewCards : Fragment() {
         val newQ = viewModel.newQueue.value
         val forgot = viewModel.forgottenQueue.value
         var c: Card?
-        if ((null != forgot) and !(forgot!!.isEmpty())) {
-            c = rev!!.poll()
-        } else if((null != forgot) and !(forgot.isEmpty())) {
-            c = forgot.poll()
-        } else if((null != newQ) and !(newQ!!.isEmpty())) {
-            c = newQ.poll()
+        if (!(rev.isNullOrEmpty())) {
+            c = viewModel.pollFromReviewQueue()
+        } else if(!(forgot.isNullOrEmpty())) {
+            c = viewModel.pollFromForgetQueue()
+        } else if(!(newQ.isNullOrEmpty())) {
+            c = viewModel.pollFromNewQueue()
         } else {
             c = null
         }
         return c
     }
 
+    /*
+    *  Determine whether any of the three queues has any cards left.
+    *  Return true when no cards remain in any of the queues, false otherwise.
+    */
     private fun noCardsLeft(): Boolean {
-        return ((viewModel.reviewQueue.value?.isEmpty() != false) and
-                (viewModel.newQueue.value?.isEmpty() != false) and
-                (viewModel.forgottenQueue.value?.isEmpty() != false))
+        return ((viewModel.reviewQueue.value.isNullOrEmpty()) and
+                (viewModel.newQueue.value.isNullOrEmpty()) and
+                (viewModel.forgottenQueue.value.isNullOrEmpty()))
+
     }
 
     /* Apply an action for each case depending on whether the card is new, to be reviewed, or forgotten */
@@ -216,16 +245,6 @@ class ReviewCards : Fragment() {
     private fun applyToCountText(reviewAction: () -> Unit,
                                  newAction: () -> Unit,
                                  forgottenAction: () -> Unit) {
-        val card = viewModel.currentCard
-        if(card!!.isReview){
-            reviewAction()
-        }
-        if(card!!.isNew){
-            newAction()
-        }
-        if(card!!.isForgotten){
-            forgottenAction()
-        }
     }
 
     private fun setFinishedStateUI() {
@@ -246,14 +265,15 @@ class ReviewCards : Fragment() {
 
     }
 
+
     /*
     *  Calculate the next review interval for the card.
     *  If the increaseFlag value is set, then increase the interval;
     *  otherwise, decrease it.
      */
     private fun srsCalculation(interval: Int, increaseFlag: Boolean): Int {
-        if(increaseFlag) { // Increase interval using Collatz conjecture function
-            return (interval * 3) + 1
+        if(increaseFlag) {
+            return (interval * 2) + 1
         } else {
             return interval / 2
         }

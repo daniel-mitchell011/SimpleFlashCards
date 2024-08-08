@@ -36,7 +36,7 @@ data class Card(
     @ColumnInfo(name = "date_of_last_review")
     val dateOfLastReview: String
 ) {
-    constructor() : this(0, false, true, false, "empty", "empty", 1,  LocalDate.now().toString()){
+    constructor() : this(0, false, true, false, "empty", "empty", 0,  LocalDate.now().toString()){
 
     }
 }

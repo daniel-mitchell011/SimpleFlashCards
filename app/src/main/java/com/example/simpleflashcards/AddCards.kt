@@ -78,7 +78,7 @@ class AddCards : Fragment() {
                 false,
                 binding.etFront.text.toString(),
                 binding.etBack.text.toString(),
-                1,
+                0,
                 LocalDate.now().toString()
                 )
         )
@@ -134,7 +134,6 @@ class AddCards : Fragment() {
         displayCards()
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun displayCards() {
         viewModel.cards.observe(viewLifecycleOwner) {
             adapter.setList(it)
