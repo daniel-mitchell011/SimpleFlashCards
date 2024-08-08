@@ -15,22 +15,27 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
+            android:layout_weight="1"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0"
+                android:paddingRight="10dp"
                 android:text="Front:"
+                android:textAlignment="viewStart"
+                android:textAllCaps="false"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvDataFrnt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Empty Card Data" />
+                android:layout_weight="0"
+                android:hint="Empty Card Data"
+                android:textAlignment="viewStart" />
         </LinearLayout>
 
         <LinearLayout
@@ -43,8 +48,10 @@
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0"
+                android:paddingRight="10dp"
                 android:text="Back:"
+                android:textAlignment="viewStart"
                 android:textStyle="bold" />
 
             <TextView
@@ -52,7 +59,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Empty Card Data" />
+                android:hint="Empty Card Data"
+                android:textAlignment="viewStart" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
