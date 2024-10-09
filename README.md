@@ -10,7 +10,7 @@ to the popular flash card app AnkiDroid, the types of cards that are remaining a
 in the top-right of the screen, where the type of the current card is underlined.
 (forgotten cards -- red; reviewing cards -- green; new cards -- blue) 
 
-A demo of the project is hosted on this site under ["Projects"](https://daniel-mitchell011.github.io/Projects.html).
+A demo of the project is hosted on this site under ["Projects"](https://daniel-mitchell011.github.io/projects.html).
 
 The code is heavily inspired by this [tutorial](https://www.youtube.com/watch?v=BCSlZIUj18Y&t=29691s).
 
